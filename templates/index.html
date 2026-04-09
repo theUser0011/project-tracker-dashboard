@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card p-4 bg-secondary">
+
+    <form method="GET" id="filterForm">
+
+        <label>Select Date:</label>
+        <input type="date" name="date" value="{{selected_date}}" 
+               class="form-control" onchange="autoSubmit()">
+
+        <label class="mt-2">Items per page:</label>
+        <select name="limit" class="form-control" onchange="autoSubmit()">
+            <option value="50" {% if limit==50 %}selected{% endif %}>50</option>
+            <option value="100" {% if limit==100 %}selected{% endif %}>100</option>
+            <option value="150" {% if limit==150 %}selected{% endif %}>150</option>
+        </select>
+
+    </form>
+</div>
+
+<a href="/add" class="btn btn-success mt-3">+ Add Entry</a>
+
+<hr>
+
+<h4>Entries for {{selected_date}}</h4>
+
+<table class="table table-dark table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Category</th>
+            <th>Health</th>
+            <th>Price</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for item in data %}
+        <tr id="row-{{item._id}}">
+
+            <!-- NAME -->
+            <td>
+                <span class="view">{{item.name}}</span>
+                <input type="text" class="form-control edit d-none"
+                       value="{{item.name}}" id="name-{{item._id}}">
+            </td>
+
+            <!-- TYPE -->
+            <td>{{item.type}}</td>
+
+            <!-- CATEGORY -->
+            <td>{{item.category or '-'}}</td>
+
+            <!-- HEALTH -->
+            <td>{{item.health or '-'}}</td>
+
+            <!-- PRICE -->
+            <td>
+                <span class="view">₹{{item.price}}</span>
+                <input type="number" class="form-control edit d-none"
+                       value="{{item.price}}" id="price-{{item._id}}">
+            </td>
+
+            <!-- ACTION -->
+            <td>
+                <!-- Existing Edit (kept as-is) -->
+                <a href="/edit/{{item._id}}" class="btn btn-primary btn-sm view">Edit</a>
+
+                <!-- NEW Inline Edit -->
+                <button class="btn btn-warning btn-sm view"
+                        onclick="enableEdit('{{item._id}}')">Quick Edit</button>
+
+                <!-- Save -->
+                <button class="btn btn-success btn-sm edit d-none"
+                        onclick="saveEdit('{{item._id}}')">Save</button>
+
+                <!-- Cancel -->
+                <button class="btn btn-secondary btn-sm edit d-none"
+                        onclick="cancelEdit()">Cancel</button>
+
+                <!-- Delete -->
+                <a href="/delete/{{item._id}}" class="btn btn-danger btn-sm view">Delete</a>
+            </td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Pagination Controls -->
+<div class="d-flex justify-content-between">
+
+    {% if prev_page %}
+    <a href="?date={{selected_date}}&limit={{limit}}&page={{prev_page}}" 
+       class="btn btn-warning">⬅ Prev</a>
+    {% endif %}
+
+    {% if next_page %}
+    <a href="?date={{selected_date}}&limit={{limit}}&page={{next_page}}" 
+       class="btn btn-warning">Next ➡</a>
+    {% endif %}
+
+</div>
+
+<script>
+function autoSubmit(){
+    document.getElementById("filterForm").submit();
+}
+
+// ✅ Inline Edit Functions
+
+function enableEdit(id){
+    let row = document.getElementById("row-" + id);
+
+    row.querySelectorAll(".view").forEach(el => el.classList.add("d-none"));
+    row.querySelectorAll(".edit").forEach(el => el.classList.remove("d-none"));
+}
+
+function cancelEdit(){
+    location.reload(); // simple reset
+}
+
+function saveEdit(id){
+    const name = document.getElementById("name-" + id).value;
+    const price = document.getElementById("price-" + id).value;
+
+    fetch(`/update/${id}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name: name,
+            price: price
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success){
+            location.reload();
+        } else {
+            alert("Update failed");
+        }
+    });
+}
+</script>
+
+{% endblock %}
