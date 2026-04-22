@@ -2,6 +2,9 @@
 
 {% block content %}
 
+<!-- ✅ Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 <div class="card p-4 bg-secondary">
 
     <form method="GET" id="filterForm">
@@ -49,14 +52,47 @@
                        value="{{item.name}}" id="name-{{item._id}}">
             </td>
 
-            <!-- TYPE -->
-            <td>{{item.type}}</td>
+            <!-- TYPE WITH ICON -->
+            <td>
+                {% if item.type == "food" %}
+                    <i class="bi bi-egg-fried text-warning"></i>
+                {% elif item.type == "expense" %}
+                    <i class="bi bi-cash-stack text-success"></i>
+                {% else %}
+                    <i class="bi bi-box text-light"></i>
+                {% endif %}
+                {{item.type}}
+            </td>
 
-            <!-- CATEGORY -->
-            <td>{{item.category or '-'}}</td>
+            <!-- CATEGORY WITH ICON -->
+            <td>
+                {% if item.category == "daily" %}
+                    <i class="bi bi-basket"></i>
+                {% elif item.category == "petrol" %}
+                    <i class="bi bi-fuel-pump"></i>
+                {% elif item.category == "maintenance" %}
+                    <i class="bi bi-tools"></i>
+                {% elif item.category %}
+                    <i class="bi bi-tag"></i>
+                {% else %}
+                    -
+                {% endif %}
+                {{item.category or ''}}
+            </td>
 
-            <!-- HEALTH -->
-            <td>{{item.health or '-'}}</td>
+            <!-- HEALTH WITH ICON -->
+            <td>
+                {% if item.health == "healthy" %}
+                    <i class="bi bi-heart-pulse text-success"></i>
+                {% elif item.health == "junk" %}
+                    <i class="bi bi-emoji-frown text-danger"></i>
+                {% elif item.health %}
+                    <i class="bi bi-question-circle"></i>
+                {% else %}
+                    -
+                {% endif %}
+                {{item.health or ''}}
+            </td>
 
             <!-- PRICE -->
             <td>
@@ -67,22 +103,15 @@
 
             <!-- ACTION -->
             <td>
-                <!-- Existing Edit (kept as-is)
-                <a href="/edit/{{item._id}}" class="btn btn-primary btn-sm view">Edit</a> -->
-
-                <!-- NEW Inline Edit -->
                 <button class="btn btn-warning btn-sm view"
                         onclick="enableEdit('{{item._id}}')">Quick Edit</button>
 
-                <!-- Save -->
                 <button class="btn btn-success btn-sm edit d-none"
                         onclick="saveEdit('{{item._id}}')">Save</button>
 
-                <!-- Cancel -->
                 <button class="btn btn-secondary btn-sm edit d-none"
                         onclick="cancelEdit()">Cancel</button>
 
-                <!-- Delete -->
                 <a href="/delete/{{item._id}}" class="btn btn-danger btn-sm view">Delete</a>
             </td>
 
@@ -111,8 +140,7 @@ function autoSubmit(){
     document.getElementById("filterForm").submit();
 }
 
-// ✅ Inline Edit Functions
-
+// Inline Edit Functions
 function enableEdit(id){
     let row = document.getElementById("row-" + id);
 
@@ -121,7 +149,7 @@ function enableEdit(id){
 }
 
 function cancelEdit(){
-    location.reload(); // simple reset
+    location.reload();
 }
 
 function saveEdit(id){
@@ -148,5 +176,17 @@ function saveEdit(id){
     });
 }
 </script>
+<script>
 
-{% endblock %}
+// Auto refresh every 30 seconds (ONLY when not editing)
+setInterval(function () {
+    // Check if any row is in edit mode
+    const editing = document.querySelector(".edit:not(.d-none)");
+
+    if (!editing) {
+        window.location.reload();
+    }
+}, 30000);
+
+</script>
+{% endblock %} 
