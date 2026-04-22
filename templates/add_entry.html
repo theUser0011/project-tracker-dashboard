@@ -8,7 +8,7 @@
     <form method="POST">
 
         <label>Date</label>
-        <input type="date" name="date" class="form-control" required>
+        <input type="date" name="date" id="dateInput" class="form-control" required>
 
         <!-- TYPE -->
         <label class="mt-2">Type</label>
@@ -46,7 +46,7 @@
         <div id="expenseFields" style="display:none;">
             <label class="mt-2">Category</label>
             <select name="category" class="form-control" id="categorySelect">
-                <option value="daily">Daily Needs</option>
+                <option value="daily">Daily Expense</option>
                 <option value="petrol">Petrol</option>
                 <option value="maintenance">Maintenance</option>
                 <option value="other">Other</option>
@@ -67,6 +67,17 @@
 </div>
 
 <script>
+// Set today's date as default (only if empty)
+document.addEventListener("DOMContentLoaded", function () {
+    const dateInput = document.getElementById("dateInput");
+
+    if (!dateInput.value) {
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        dateInput.value = formattedDate;
+    }
+});
+
 // TYPE toggle (main logic)
 document.getElementById("typeSelect").addEventListener("change", function() {
 

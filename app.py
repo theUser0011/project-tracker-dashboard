@@ -125,10 +125,13 @@ def add_entry():
             if entry_type == "other":
                 entry_type = request.form.get("type_custom")
 
-            if entry_type == "food":
+            # Only remove irrelevant fields if they were NOT provided
+            if entry_type == "food" and not category:
                 category = None
-            if entry_type == "expense":
+
+            if entry_type == "expense" and not health:
                 health = None
+                
 
             entry = {
                 "date": date,
